@@ -1,335 +1,257 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>التقرير التفاعلي | تجربة التدريب</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>التقرير التفاعلي للتدريب</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-/* ================== DESIGN SYSTEM ================== */
 :root{
-  --bg:#0b0614;
-  --card:rgba(255,255,255,.04);
-  --stroke:rgba(255,255,255,.08);
-
-  --p:#7c3aed;
-  --s:#a855f7;
-  --a:#c084fc;
-
-  --text:#f5f1ff;
-  --muted:#b9a9d6;
-
-  --glow:0 0 35px rgba(168,85,247,.35);
-  --radius:18px;
-}
-
-body.light{
-  --bg:#f7f5ff;
+  --bg:#f6f1e8;
   --card:#ffffff;
-  --stroke:#e7e0ff;
-  --text:#1a1a1a;
-  --muted:#555;
+  --text:#1b1b1b;
+  --muted:#666;
+  --p:#7c3aed;
+  --shadow:0 10px 30px rgba(124,58,237,.12);
+  --r:16px;
 }
 
-*{box-sizing:border-box;font-family:Tajawal}
+body.dark{
+  --bg:#0b0614;
+  --card:#141021;
+  --text:#fff;
+  --muted:#b8a9d6;
+}
+
+*{font-family:Tajawal;box-sizing:border-box}
+
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  overflow-x:hidden;
   transition:.4s;
 }
 
-/* ================== BACKGROUND ================== */
-.bg{
-  position:fixed;inset:0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(124,58,237,.25), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(168,85,247,.18), transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(192,132,252,.12), transparent 50%);
-  z-index:-2;
-}
-
-.blob{
-  position:absolute;
-  width:400px;height:400px;
-  background:radial-gradient(circle,var(--s),transparent 70%);
-  filter:blur(60px);
-  opacity:.15;
-  animation:float 12s infinite ease-in-out;
-}
-
-@keyframes float{
-  0%,100%{transform:translate(0,0)}
-  50%{transform:translate(40px,-40px)}
-}
-
-/* ================== HEADER ================== */
+/* HEADER */
 header{
-  position:fixed;
-  top:0;right:0;left:0;
-  height:70px;
+  position:fixed;top:0;right:0;left:0;
+  background:var(--card);
+  padding:12px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:0 20px;
-  backdrop-filter:blur(14px);
-  background:rgba(10,6,20,.6);
-  border-bottom:1px solid var(--stroke);
-  z-index:1000;
+  box-shadow:var(--shadow);
+  z-index:10;
 }
 
-.logo{
-  font-weight:900;
-  letter-spacing:.5px;
-  color:var(--a);
-}
+.logo{color:var(--p);font-weight:900}
 
-.actions button{
-  border:0;
-  padding:8px 12px;
-  border-radius:12px;
-  background:linear-gradient(135deg,var(--p),var(--s));
-  color:white;
-  cursor:pointer;
-  box-shadow:var(--glow);
-}
-
-/* ================== LAYOUT ================== */
-.sidebar{
-  position:fixed;
-  top:70px;right:0;
-  width:240px;height:100%;
-  padding:15px;
-  background:rgba(255,255,255,.02);
-  backdrop-filter:blur(12px);
-  border-left:1px solid var(--stroke);
-}
-
-.sidebar a{
-  display:block;
-  padding:10px;
-  margin:6px 0;
-  border-radius:12px;
-  color:var(--muted);
-  transition:.3s;
-}
-.sidebar a:hover{
+button{
   background:var(--p);
-  color:white;
-  transform:translateX(-5px);
+  border:0;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  margin:0 4px;
 }
 
-main{
-  margin-right:260px;
-  padding:110px 25px 60px;
+/* LAYOUT */
+.container{
+  margin-top:90px;
+  padding:20px;
+  max-width:1000px;
+  margin-inline:auto;
 }
 
-/* ================== HERO ================== */
-.hero{
-  padding:40px;
-  border-radius:25px;
-  background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(168,85,247,.08));
-  border:1px solid var(--stroke);
-  box-shadow:var(--glow);
-  position:relative;
-  overflow:hidden;
-}
-
-.hero h1{font-size:34px;margin:0}
-.hero p{color:var(--muted);line-height:1.8}
-
-/* ================== CARDS ================== */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px;
-  margin-top:20px;
-}
-
+/* CARD */
 .card{
   background:var(--card);
-  border:1px solid var(--stroke);
-  border-radius:var(--radius);
   padding:18px;
-  transition:.35s;
-}
-.card:hover{
-  transform:translateY(-6px);
-  box-shadow:var(--glow);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  margin-bottom:15px;
 }
 
-.big{
-  font-size:26px;
-  font-weight:900;
-  color:var(--a);
-}
-
-/* ================== SECTIONS ================== */
-section{margin-top:40px}
-
-/* ================== REVEAL ================== */
-.hidden{opacity:0;transform:translateY(20px);transition:.8s}
-.show{opacity:1;transform:translateY(0)}
-
-/* ================== TIMELINE ================== */
-.timeline{
-  border-right:2px solid var(--p);
-  padding-right:15px;
-}
-.event{
-  margin:15px 0;
+/* TEXTAREA */
+textarea{
+  width:100%;
+  min-height:120px;
   padding:12px;
-  background:var(--card);
   border-radius:12px;
+  border:1px solid #ddd;
+  font-family:inherit;
+  outline:none;
 }
 
-/* ================== BUTTON ================== */
-.btn{
-  padding:10px 14px;
-  border-radius:12px;
-  border:0;
-  cursor:pointer;
-  background:linear-gradient(135deg,var(--p),var(--s));
-  color:white;
+/* FILES */
+.files{
+  margin-top:10px;
 }
 
-/* ================== CHART ================== */
-canvas{
-  background:var(--card);
-  border-radius:16px;
-  padding:10px;
-  border:1px solid var(--stroke);
+.file-item{
+  padding:8px;
+  margin:5px 0;
+  border-radius:10px;
+  background:rgba(124,58,237,.08);
+  border:1px solid rgba(124,58,237,.2);
+  font-size:13px;
 }
 
-/* ================== BACK TO TOP ================== */
-#top{
-  position:fixed;
-  bottom:20px;
-  left:20px;
-  border:0;
-  padding:10px;
-  border-radius:50%;
-  background:var(--p);
-  color:white;
-  display:none;
+/* QR */
+#qr{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
 }
+
+/* INPUT FILE */
+input[type=file]{
+  margin-top:10px;
+}
+
+/* SMALL TEXT */
+small{color:var(--muted)}
 </style>
 </head>
 
 <body>
 
-<div class="bg">
-  <div class="blob" style="top:10%;left:10%"></div>
-  <div class="blob" style="bottom:10%;right:10%"></div>
-</div>
-
 <header>
-  <div class="logo">التقرير الرقمي</div>
-  <div class="actions">
+  <div class="logo">التقرير التفاعلي</div>
+
+  <div>
     <button onclick="toggle()">الوضع</button>
+    <button onclick="saveData()">حفظ</button>
+    <button onclick="exportPDF()">PDF</button>
   </div>
 </header>
 
-<div class="sidebar">
-  <a href="#home">الرئيسية</a>
-  <a href="#stats">الإحصائيات</a>
-  <a href="#timeline">الأسابيع</a>
-  <a href="#chart">التحليل</a>
+<div class="container">
+
+<!-- WEEK 1 -->
+<div class="card">
+  <h2>الأسبوع 1</h2>
+  <textarea id="w1" placeholder="اكتب ما تدربت عليه..."></textarea>
+  <input type="file" id="file_w1" multiple onchange="handleFiles('w1')">
+  <div id="files_w1" class="files"></div>
 </div>
 
-<main>
+<!-- WEEK 2 -->
+<div class="card">
+  <h2>الأسبوع 2</h2>
+  <textarea id="w2"></textarea>
+  <input type="file" id="file_w2" multiple onchange="handleFiles('w2')">
+  <div id="files_w2" class="files"></div>
+</div>
 
-<section id="home" class="hero hidden">
-  <h1>تجربة تدريب قانوني رقمية</h1>
-  <p>
-    تقرير تفاعلي يوثق رحلة تطوير مهني في بيئة عمل حكومية، يدمج التحليل القانوني مع التجربة العملية وصناعة القرار.
-  </p>
-</section>
+<!-- WEEK 3 -->
+<div class="card">
+  <h2>الأسبوع 3</h2>
+  <textarea id="w3"></textarea>
+  <input type="file" id="file_w3" multiple onchange="handleFiles('w3')">
+  <div id="files_w3" class="files"></div>
+</div>
 
-<section id="stats" class="grid hidden">
-  <div class="card"><div class="big" data="12">0</div>أسابيع</div>
-  <div class="card"><div class="big" data="54">0</div>مهام</div>
-  <div class="card"><div class="big" data="18">0</div>مهارات</div>
-  <div class="card"><div class="big" data="7">0</div>تقارير</div>
-</section>
+<!-- TASKS -->
+<div class="card">
+  <h2>المهام</h2>
+  <textarea id="tasks"></textarea>
+</div>
 
-<section id="timeline" class="hidden">
-  <h2>الرحلة الأسبوعية</h2>
-  <div class="timeline">
-    <div class="event">الأسبوع 1: فهم النظام وتحليل الملفات</div>
-    <div class="event">الأسبوع 2: صياغة المذكرات القانونية</div>
-    <div class="event">الأسبوع 3: تطوير التفكير التحليلي</div>
-    <div class="event">الأسبوع 4: العمل على قضايا واقعية</div>
-  </div>
-</section>
+<!-- CONTACT -->
+<div class="card">
+  <h2>التواصل</h2>
+  <textarea id="contact" placeholder="LinkedIn - Email - GitHub"></textarea>
+</div>
 
-<section id="chart" class="hidden">
-  <h2>تحليل الأداء</h2>
-  <canvas id="c"></canvas>
-</section>
+<!-- QR -->
+<div class="card">
+  <h2>باركود التقرير</h2>
+  <div id="qr"></div>
+  <small>يتحدث تلقائيًا بعد الحفظ</small>
+</div>
 
-<section class="card hidden">
-  <h2>انعكاس مهني</h2>
-  <p>
-    التجربة عززت القدرة على الربط بين النص النظامي والواقع العملي، وصقلت مهارات التحليل واتخاذ القرار تحت ضغط المهام.
-  </p>
-</section>
-
-</main>
-
-<button id="top" onclick="scrollToTop()">↑</button>
+</div>
 
 <script>
 
+/* ================= LOAD ================= */
+window.onload=()=>{
+  ["w1","w2","w3","tasks","contact"].forEach(id=>{
+    let v = localStorage.getItem(id);
+    if(v) document.getElementById(id).value=v;
+  });
+
+  ["w1","w2","w3"].forEach(renderFiles);
+
+  generateQR();
+};
+
+/* ================= SAVE ================= */
+function saveData(){
+  ["w1","w2","w3","tasks","contact"].forEach(id=>{
+    localStorage.setItem(id,document.getElementById(id).value);
+  });
+
+  generateQR();
+  alert("تم الحفظ");
+}
+
+/* ================= FILES ================= */
+function handleFiles(week){
+  const input=document.getElementById("file_"+week);
+  let files=[];
+
+  Array.from(input.files).forEach(f=>{
+    files.push({name:f.name});
+  });
+
+  localStorage.setItem("files_"+week,JSON.stringify(files));
+  renderFiles(week);
+}
+
+function renderFiles(week){
+  const box=document.getElementById("files_"+week);
+  box.innerHTML="";
+
+  let data=JSON.parse(localStorage.getItem("files_"+week)||"[]");
+
+  data.forEach(f=>{
+    let div=document.createElement("div");
+    div.className="file-item";
+    div.innerText="📎 "+f.name;
+    box.appendChild(div);
+  });
+}
+
+/* ================= QR ================= */
+function generateQR(){
+  document.getElementById("qr").innerHTML="";
+
+  new QRCode(document.getElementById("qr"),{
+    text:location.href,
+    width:140,
+    height:140
+  });
+}
+
+/* ================= PDF ================= */
+function exportPDF(){
+  html2pdf().from(document.querySelector(".container")).save("report.pdf");
+}
+
 /* ================= MODE ================= */
 function toggle(){
-  document.body.classList.toggle('light');
+  document.body.classList.toggle("dark");
 }
 
-/* ================= COUNTERS ================= */
-document.querySelectorAll('.big').forEach(el=>{
-  let t=+el.getAttribute('data');
-  let i=0;
-  let step=()=>{
-    if(i<t){i+=Math.ceil(t/40);el.innerText=i;requestAnimationFrame(step);}
-    else el.innerText=t;
-  };
-  step();
-});
-
-/* ================= REVEAL ================= */
-const obs=new IntersectionObserver(e=>{
-  e.forEach(x=>{
-    if(x.isIntersecting)x.target.classList.add('show');
-  });
-});
-document.querySelectorAll('.hidden').forEach(e=>obs.observe(e));
-
-/* ================= CHART ================= */
-new Chart(document.getElementById('c'),{
-  type:'line',
-  data:{
-    labels:['1','2','3','4','5'],
-    datasets:[{
-      data:[60,70,75,85,95],
-      borderColor:'#a855f7',
-      tension:.4
-    }]
-  }
-});
-
-/* ================= TOP BUTTON ================= */
-let topBtn=document.getElementById('top');
-window.onscroll=()=>{
-  topBtn.style.display=scrollY>200?'block':'none';
-}
-function scrollToTop(){
-  window.scrollTo({top:0,behavior:'smooth'});
-}
 </script>
 
 </body>
