@@ -4,17 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>التقرير التفاعلي للتدريب</title>
+<title>منصة التدريب التعاوني الذكية</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 :root{
   --bg:#f6f1e8;
-  --card:#ffffff;
+  --card:#fff;
   --text:#1b1b1b;
   --muted:#666;
   --p:#7c3aed;
@@ -42,32 +39,25 @@ body{
 header{
   position:fixed;top:0;right:0;left:0;
   background:var(--card);
+  box-shadow:var(--shadow);
   padding:12px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:var(--shadow);
   z-index:10;
 }
 
-.logo{color:var(--p);font-weight:900}
-
-button{
-  background:var(--p);
-  border:0;
-  color:#fff;
-  padding:8px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  margin:0 4px;
+.logo{
+  color:var(--p);
+  font-weight:900;
 }
 
 /* LAYOUT */
 .container{
   margin-top:90px;
-  padding:20px;
   max-width:1000px;
   margin-inline:auto;
+  padding:20px;
 }
 
 /* CARD */
@@ -86,219 +76,7 @@ textarea{
   padding:12px;
   border-radius:12px;
   border:1px solid #ddd;
-  font-family:inherit;
   outline:none;
-}
-
-/* FILES */
-.files{
-  margin-top:10px;
-}
-
-.file-item{
-  padding:8px;
-  margin:5px 0;
-  border-radius:10px;
-  background:rgba(124,58,237,.08);
-  border:1px solid rgba(124,58,237,.2);
-  font-size:13px;
-}
-
-/* QR */
-#qr{
-  display:flex;
-  justify-content:center;
-  margin-top:10px;
-}
-
-/* INPUT FILE */
-input[type=file]{
-  margin-top:10px;
-}
-
-/* SMALL TEXT */
-small{color:var(--muted)}
-</style>
-</head>
-
-<body>
-
-<header>
-  <div class="logo">التقرير التفاعلي</div>
-
-  <div>
-    <button onclick="toggle()">الوضع</button>
-    <button onclick="saveData()">حفظ</button>
-    <button onclick="exportPDF()">PDF</button>
-  </div>
-</header>
-
-<div class="container">
-
-<!-- WEEK 1 -->
-<div class="card">
-  <h2>الأسبوع 1</h2>
-  <textarea id="w1" placeholder="اكتب ما تدربت عليه..."></textarea>
-  <input type="file" id="file_w1" multiple onchange="handleFiles('w1')">
-  <div id="files_w1" class="files"></div>
-</div>
-
-<!-- WEEK 2 -->
-<div class="card">
-  <h2>الأسبوع 2</h2>
-  <textarea id="w2"></textarea>
-  <input type="file" id="file_w2" multiple onchange="handleFiles('w2')">
-  <div id="files_w2" class="files"></div>
-</div>
-
-<!-- WEEK 3 -->
-<div class="card">
-  <h2>الأسبوع 3</h2>
-  <textarea id="w3"></textarea>
-  <input type="file" id="file_w3" multiple onchange="handleFiles('w3')">
-  <div id="files_w3" class="files"></div>
-</div>
-
-<!-- TASKS -->
-<div class="card">
-  <h2>المهام</h2>
-  <textarea id="tasks"></textarea>
-</div>
-
-<!-- CONTACT -->
-<div class="card">
-  <h2>التواصل</h2>
-  <textarea id="contact" placeholder="LinkedIn - Email - GitHub"></textarea>
-</div>
-
-<!-- QR -->
-<div class="card">
-  <h2>باركود التقرير</h2>
-  <div id="qr"></div>
-  <small>يتحدث تلقائيًا بعد الحفظ</small>
-</div>
-
-</div>
-
-<script>
-
-/* ================= LOAD ================= */
-window.onload=()=>{
-  ["w1","w2","w3","tasks","contact"].forEach(id=>{
-    let v = localStorage.getItem(id);
-    if(v) document.getElementById(id).value=v;
-  });
-
-  ["w1","w2","w3"].forEach(renderFiles);
-
-  generateQR();
-};
-
-/* ================= SAVE ================= */
-function saveData(){
-  ["w1","w2","w3","tasks","contact"].forEach(id=>{
-    localStorage.setItem(id,document.getElementById(id).value);
-  });
-
-  generateQR();
-  alert("تم الحفظ");
-}
-
-/* ================= FILES ================= */
-function handleFiles(week){
-  const input=document.getElementById("file_"+week);
-  let files=[];
-
-  Array.from(input.files).forEach(f=>{
-    files.push({name:f.name});
-  });
-
-  localStorage.setItem("files_"+week,JSON.stringify(files));
-  renderFiles(week);
-}
-
-function renderFiles(week){
-  const box=document.getElementById("files_"+week);
-  box.innerHTML="";
-
-  let data=JSON.parse(localStorage.getItem("files_"+week)||"[]");
-
-  data.forEach(f=>{
-    let div=document.createElement("div");
-    div.className="file-item";
-    div.innerText="📎 "+f.name;
-    box.appendChild(div);
-  });
-}
-
-/* ================= QR ================= */
-function generateQR(){
-  document.getElementById("qr").innerHTML="";
-
-  new QRCode(document.getElementById("qr"),{
-    text:location.href,
-    width:140,
-    height:140
-  });
-}
-
-/* ================= PDF ================= */
-function exportPDF(){
-  html2pdf().from(document.querySelector(".container")).save("report.pdf");
-}
-
-/* ================= MODE ================= */
-function toggle(){
-  document.body.classList.toggle("dark");
-}
-
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>نظام التقرير + لوحة التحكم</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-<style>
-:root{
-  --bg:#f6f1e8;
-  --card:#fff;
-  --text:#1b1b1b;
-  --muted:#666;
-  --p:#7c3aed;
-  --shadow:0 10px 30px rgba(124,58,237,.12);
-}
-
-body.dark{
-  --bg:#0b0614;
-  --card:#141021;
-  --text:#fff;
-  --muted:#b8a9d6;
-}
-
-*{font-family:Tajawal;box-sizing:border-box}
-
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* HEADER */
-header{
-  position:fixed;top:0;right:0;left:0;
-  background:var(--card);
-  padding:12px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:var(--shadow);
 }
 
 /* BUTTON */
@@ -309,139 +87,173 @@ button{
   padding:8px 12px;
   border-radius:10px;
   cursor:pointer;
+  margin:3px;
 }
 
-/* LAYOUT */
-.container{
-  margin-top:90px;
-  max-width:900px;
-  margin-inline:auto;
-  padding:20px;
+/* FILE */
+input[type=file]{
+  margin-top:10px;
 }
 
-.card{
-  background:var(--card);
-  padding:16px;
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  margin-bottom:12px;
-}
-
-/* LOGIN */
-.login{
-  max-width:400px;
-  margin:120px auto;
-}
-
-/* ADMIN PANEL */
-.admin{
-  display:none;
-}
-
-/* TABLE */
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-td,th{
-  padding:10px;
-  border-bottom:1px solid #ddd;
-  font-size:14px;
-}
-
-/* FILE LIST */
-.file{
+/* RESULT */
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
   font-size:12px;
-  color:var(--muted);
+  margin:4px 0;
+  background:rgba(124,58,237,.1);
+  color:var(--p);
 }
+
+.score{
+  font-size:22px;
+  font-weight:900;
+  color:var(--p);
+}
+
+small{color:var(--muted)}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div>نظام التقرير</div>
-  <button onclick="toggle()">الوضع</button>
+  <div class="logo">منصة التدريب الذكية</div>
+  <div>
+    <button onclick="toggle()">الوضع</button>
+    <button onclick="save()">حفظ</button>
+  </div>
 </header>
 
-<!-- LOGIN -->
-<div class="login card" id="loginBox">
-  <h2>تسجيل دخول الأدمن</h2>
-  <input type="password" id="pass" placeholder="كلمة المرور" style="width:100%;padding:10px;margin-top:10px">
-  <button style="margin-top:10px;width:100%" onclick="login()">دخول</button>
+<div class="container">
+
+<!-- WEEK 1 -->
+<div class="card">
+  <h2>الأسبوع 1</h2>
+  <textarea id="w1"></textarea>
+  <input type="file" id="f1" multiple>
 </div>
 
-<!-- ADMIN -->
-<div class="container admin" id="adminPanel">
+<!-- WEEK 2 -->
+<div class="card">
+  <h2>الأسبوع 2</h2>
+  <textarea id="w2"></textarea>
+  <input type="file" id="f2" multiple>
+</div>
 
-  <h2>لوحة التحكم</h2>
+<!-- WEEK 3 -->
+<div class="card">
+  <h2>الأسبوع 3</h2>
+  <textarea id="w3"></textarea>
+  <input type="file" id="f3" multiple>
+</div>
 
-  <div class="card">
-    <h3>بيانات الأسابيع</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>الأسبوع</th>
-          <th>النص</th>
-          <th>مرفقات</th>
-          <th>حذف</th>
-        </tr>
-      </thead>
-      <tbody id="table"></tbody>
-    </table>
-  </div>
+<!-- CV -->
+<div class="card">
+  <h2>السيرة الذاتية</h2>
+  <input type="file" id="cv">
+</div>
+
+<!-- AI -->
+<div class="card">
+  <h2>🧠 المساعد الذكي</h2>
+  <button onclick="analyze()">تحليل الكتابة</button>
+  <div id="result" style="margin-top:10px"></div>
+</div>
 
 </div>
 
 <script>
 
-/* ================= LOGIN ================= */
-function login(){
-  const pass=document.getElementById("pass").value;
-
-  if(pass==="admin123"){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
-    loadData();
-  }else{
-    alert("كلمة المرور غير صحيحة");
-  }
-}
-
 /* ================= LOAD ================= */
-function loadData(){
-  const table=document.getElementById("table");
-  table.innerHTML="";
-
-  ["w1","w2","w3"].forEach(w=>{
-    let text=localStorage.getItem(w)||"";
-
-    let files=JSON.parse(localStorage.getItem("files_"+w)||"[]");
-
-    let row=document.createElement("tr");
-
-    row.innerHTML=`
-      <td>${w}</td>
-      <td>${text.substring(0,50)}...</td>
-      <td>${files.length} ملف</td>
-      <td><button onclick="del('${w}')">حذف</button></td>
-    `;
-
-    table.appendChild(row);
+window.onload=()=>{
+  ["w1","w2","w3"].forEach(id=>{
+    let v=localStorage.getItem(id);
+    if(v) document.getElementById(id).value=v;
   });
+};
+
+/* ================= SAVE ================= */
+function save(){
+  ["w1","w2","w3"].forEach(id=>{
+    localStorage.setItem(id,document.getElementById(id).value);
+  });
+
+  alert("تم الحفظ");
 }
 
-/* ================= DELETE ================= */
-function del(w){
-  localStorage.removeItem(w);
-  localStorage.removeItem("files_"+w);
-  loadData();
-}
-
-/* ================= MODE ================= */
+/* ================= DARK MODE ================= */
 function toggle(){
   document.body.classList.toggle("dark");
+}
+
+/* ================= AI ANALYSIS ================= */
+
+function analyze(){
+
+  let text =
+  (document.getElementById("w1").value + " " +
+   document.getElementById("w2").value + " " +
+   document.getElementById("w3").value).trim();
+
+  let box=document.getElementById("result");
+
+  if(!text){
+    box.innerHTML="⚠️ لا يوجد محتوى";
+    return;
+  }
+
+  let words=text.split(/\s+/).length;
+
+  let score=formalScore(text);
+  let clarity=clarityScore(text);
+  let rep=repetition(text);
+
+  box.innerHTML=`
+    <div class="score">📊 التقييم: ${score}/100</div>
+
+    <div class="badge">عدد الكلمات: ${words}</div>
+    <div class="badge">الوضوح: ${clarity}%</div>
+    <div class="badge">التكرار: ${rep}</div>
+
+    <hr>
+
+    <h3>💡 ملاحظات:</h3>
+    <ul>
+      ${score<60?'<li>الأسلوب يحتاج طابع رسمي أكثر</li>':''}
+      ${clarity<60?'<li>الجمل تحتاج وضوح أكثر</li>':''}
+    </ul>
+
+    <h3>✨ إعادة صياغة:</h3>
+    <p>${rewrite(text)}</p>
+  `;
+}
+
+/* ================= RULE ENGINE ================= */
+
+function formalScore(t){
+  let s=50;
+  if(t.includes("تحليل"))s+=20;
+  if(t.includes("نظام"))s+=15;
+  if(t.length>200)s+=10;
+  return Math.min(100,s);
+}
+
+function clarityScore(t){
+  return Math.min(100,Math.round((1/(t.split(" ").length/12))*100));
+}
+
+function repetition(t){
+  let w=t.split(/\s+/),f={};
+  w.forEach(x=>f[x]=(f[x]||0)+1);
+  return Math.max(...Object.values(f))>6?"مرتفع":"طبيعي";
+}
+
+/* ================= REWRITE ================= */
+
+function rewrite(t){
+  return "تم خلال فترة التدريب اكتساب خبرات عملية في بيئة عمل احترافية، شملت التحليل النظامي، وفهم الإجراءات، وتطوير المهارات التطبيقية، مما عزز الكفاءة المهنية وصقل مهارات اتخاذ القرار.";
 }
 
 </script>
