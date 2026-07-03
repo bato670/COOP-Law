@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>التقرير التفاعلي | تجربة التدريب</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ================== DESIGN SYSTEM ================== */
+:root{
+  --bg:#0b0614;
+  --card:rgba(255,255,255,.04);
+  --stroke:rgba(255,255,255,.08);
+
+  --p:#7c3aed;
+  --s:#a855f7;
+  --a:#c084fc;
+
+  --text:#f5f1ff;
+  --muted:#b9a9d6;
+
+  --glow:0 0 35px rgba(168,85,247,.35);
+  --radius:18px;
+}
+
+body.light{
+  --bg:#f7f5ff;
+  --card:#ffffff;
+  --stroke:#e7e0ff;
+  --text:#1a1a1a;
+  --muted:#555;
+}
+
+*{box-sizing:border-box;font-family:Tajawal}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  transition:.4s;
+}
+
+/* ================== BACKGROUND ================== */
+.bg{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124,58,237,.25), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(168,85,247,.18), transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(192,132,252,.12), transparent 50%);
+  z-index:-2;
+}
+
+.blob{
+  position:absolute;
+  width:400px;height:400px;
+  background:radial-gradient(circle,var(--s),transparent 70%);
+  filter:blur(60px);
+  opacity:.15;
+  animation:float 12s infinite ease-in-out;
+}
+
+@keyframes float{
+  0%,100%{transform:translate(0,0)}
+  50%{transform:translate(40px,-40px)}
+}
+
+/* ================== HEADER ================== */
+header{
+  position:fixed;
+  top:0;right:0;left:0;
+  height:70px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 20px;
+  backdrop-filter:blur(14px);
+  background:rgba(10,6,20,.6);
+  border-bottom:1px solid var(--stroke);
+  z-index:1000;
+}
+
+.logo{
+  font-weight:900;
+  letter-spacing:.5px;
+  color:var(--a);
+}
+
+.actions button{
+  border:0;
+  padding:8px 12px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--p),var(--s));
+  color:white;
+  cursor:pointer;
+  box-shadow:var(--glow);
+}
+
+/* ================== LAYOUT ================== */
+.sidebar{
+  position:fixed;
+  top:70px;right:0;
+  width:240px;height:100%;
+  padding:15px;
+  background:rgba(255,255,255,.02);
+  backdrop-filter:blur(12px);
+  border-left:1px solid var(--stroke);
+}
+
+.sidebar a{
+  display:block;
+  padding:10px;
+  margin:6px 0;
+  border-radius:12px;
+  color:var(--muted);
+  transition:.3s;
+}
+.sidebar a:hover{
+  background:var(--p);
+  color:white;
+  transform:translateX(-5px);
+}
+
+main{
+  margin-right:260px;
+  padding:110px 25px 60px;
+}
+
+/* ================== HERO ================== */
+.hero{
+  padding:40px;
+  border-radius:25px;
+  background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(168,85,247,.08));
+  border:1px solid var(--stroke);
+  box-shadow:var(--glow);
+  position:relative;
+  overflow:hidden;
+}
+
+.hero h1{font-size:34px;margin:0}
+.hero p{color:var(--muted);line-height:1.8}
+
+/* ================== CARDS ================== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-top:20px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  padding:18px;
+  transition:.35s;
+}
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:var(--glow);
+}
+
+.big{
+  font-size:26px;
+  font-weight:900;
+  color:var(--a);
+}
+
+/* ================== SECTIONS ================== */
+section{margin-top:40px}
+
+/* ================== REVEAL ================== */
+.hidden{opacity:0;transform:translateY(20px);transition:.8s}
+.show{opacity:1;transform:translateY(0)}
+
+/* ================== TIMELINE ================== */
+.timeline{
+  border-right:2px solid var(--p);
+  padding-right:15px;
+}
+.event{
+  margin:15px 0;
+  padding:12px;
+  background:var(--card);
+  border-radius:12px;
+}
+
+/* ================== BUTTON ================== */
+.btn{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--p),var(--s));
+  color:white;
+}
+
+/* ================== CHART ================== */
+canvas{
+  background:var(--card);
+  border-radius:16px;
+  padding:10px;
+  border:1px solid var(--stroke);
+}
+
+/* ================== BACK TO TOP ================== */
+#top{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  border:0;
+  padding:10px;
+  border-radius:50%;
+  background:var(--p);
+  color:white;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg">
+  <div class="blob" style="top:10%;left:10%"></div>
+  <div class="blob" style="bottom:10%;right:10%"></div>
+</div>
+
+<header>
+  <div class="logo">التقرير الرقمي</div>
+  <div class="actions">
+    <button onclick="toggle()">الوضع</button>
+  </div>
+</header>
+
+<div class="sidebar">
+  <a href="#home">الرئيسية</a>
+  <a href="#stats">الإحصائيات</a>
+  <a href="#timeline">الأسابيع</a>
+  <a href="#chart">التحليل</a>
+</div>
+
+<main>
+
+<section id="home" class="hero hidden">
+  <h1>تجربة تدريب قانوني رقمية</h1>
+  <p>
+    تقرير تفاعلي يوثق رحلة تطوير مهني في بيئة عمل حكومية، يدمج التحليل القانوني مع التجربة العملية وصناعة القرار.
+  </p>
+</section>
+
+<section id="stats" class="grid hidden">
+  <div class="card"><div class="big" data="12">0</div>أسابيع</div>
+  <div class="card"><div class="big" data="54">0</div>مهام</div>
+  <div class="card"><div class="big" data="18">0</div>مهارات</div>
+  <div class="card"><div class="big" data="7">0</div>تقارير</div>
+</section>
+
+<section id="timeline" class="hidden">
+  <h2>الرحلة الأسبوعية</h2>
+  <div class="timeline">
+    <div class="event">الأسبوع 1: فهم النظام وتحليل الملفات</div>
+    <div class="event">الأسبوع 2: صياغة المذكرات القانونية</div>
+    <div class="event">الأسبوع 3: تطوير التفكير التحليلي</div>
+    <div class="event">الأسبوع 4: العمل على قضايا واقعية</div>
+  </div>
+</section>
+
+<section id="chart" class="hidden">
+  <h2>تحليل الأداء</h2>
+  <canvas id="c"></canvas>
+</section>
+
+<section class="card hidden">
+  <h2>انعكاس مهني</h2>
+  <p>
+    التجربة عززت القدرة على الربط بين النص النظامي والواقع العملي، وصقلت مهارات التحليل واتخاذ القرار تحت ضغط المهام.
+  </p>
+</section>
+
+</main>
+
+<button id="top" onclick="scrollToTop()">↑</button>
+
+<script>
+
+/* ================= MODE ================= */
+function toggle(){
+  document.body.classList.toggle('light');
+}
+
+/* ================= COUNTERS ================= */
+document.querySelectorAll('.big').forEach(el=>{
+  let t=+el.getAttribute('data');
+  let i=0;
+  let step=()=>{
+    if(i<t){i+=Math.ceil(t/40);el.innerText=i;requestAnimationFrame(step);}
+    else el.innerText=t;
+  };
+  step();
+});
+
+/* ================= REVEAL ================= */
+const obs=new IntersectionObserver(e=>{
+  e.forEach(x=>{
+    if(x.isIntersecting)x.target.classList.add('show');
+  });
+});
+document.querySelectorAll('.hidden').forEach(e=>obs.observe(e));
+
+/* ================= CHART ================= */
+new Chart(document.getElementById('c'),{
+  type:'line',
+  data:{
+    labels:['1','2','3','4','5'],
+    datasets:[{
+      data:[60,70,75,85,95],
+      borderColor:'#a855f7',
+      tension:.4
+    }]
+  }
+});
+
+/* ================= TOP BUTTON ================= */
+let topBtn=document.getElementById('top');
+window.onscroll=()=>{
+  topBtn.style.display=scrollY>200?'block':'none';
+}
+function scrollToTop(){
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>
