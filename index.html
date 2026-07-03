@@ -252,6 +252,198 @@ function toggle(){
   document.body.classList.toggle("dark");
 }
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>نظام التقرير + لوحة التحكم</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root{
+  --bg:#f6f1e8;
+  --card:#fff;
+  --text:#1b1b1b;
+  --muted:#666;
+  --p:#7c3aed;
+  --shadow:0 10px 30px rgba(124,58,237,.12);
+}
+
+body.dark{
+  --bg:#0b0614;
+  --card:#141021;
+  --text:#fff;
+  --muted:#b8a9d6;
+}
+
+*{font-family:Tajawal;box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* HEADER */
+header{
+  position:fixed;top:0;right:0;left:0;
+  background:var(--card);
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:var(--shadow);
+}
+
+/* BUTTON */
+button{
+  background:var(--p);
+  color:#fff;
+  border:0;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* LAYOUT */
+.container{
+  margin-top:90px;
+  max-width:900px;
+  margin-inline:auto;
+  padding:20px;
+}
+
+.card{
+  background:var(--card);
+  padding:16px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  margin-bottom:12px;
+}
+
+/* LOGIN */
+.login{
+  max-width:400px;
+  margin:120px auto;
+}
+
+/* ADMIN PANEL */
+.admin{
+  display:none;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+td,th{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+  font-size:14px;
+}
+
+/* FILE LIST */
+.file{
+  font-size:12px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>نظام التقرير</div>
+  <button onclick="toggle()">الوضع</button>
+</header>
+
+<!-- LOGIN -->
+<div class="login card" id="loginBox">
+  <h2>تسجيل دخول الأدمن</h2>
+  <input type="password" id="pass" placeholder="كلمة المرور" style="width:100%;padding:10px;margin-top:10px">
+  <button style="margin-top:10px;width:100%" onclick="login()">دخول</button>
+</div>
+
+<!-- ADMIN -->
+<div class="container admin" id="adminPanel">
+
+  <h2>لوحة التحكم</h2>
+
+  <div class="card">
+    <h3>بيانات الأسابيع</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>الأسبوع</th>
+          <th>النص</th>
+          <th>مرفقات</th>
+          <th>حذف</th>
+        </tr>
+      </thead>
+      <tbody id="table"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+
+/* ================= LOGIN ================= */
+function login(){
+  const pass=document.getElementById("pass").value;
+
+  if(pass==="admin123"){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+    loadData();
+  }else{
+    alert("كلمة المرور غير صحيحة");
+  }
+}
+
+/* ================= LOAD ================= */
+function loadData(){
+  const table=document.getElementById("table");
+  table.innerHTML="";
+
+  ["w1","w2","w3"].forEach(w=>{
+    let text=localStorage.getItem(w)||"";
+
+    let files=JSON.parse(localStorage.getItem("files_"+w)||"[]");
+
+    let row=document.createElement("tr");
+
+    row.innerHTML=`
+      <td>${w}</td>
+      <td>${text.substring(0,50)}...</td>
+      <td>${files.length} ملف</td>
+      <td><button onclick="del('${w}')">حذف</button></td>
+    `;
+
+    table.appendChild(row);
+  });
+}
+
+/* ================= DELETE ================= */
+function del(w){
+  localStorage.removeItem(w);
+  localStorage.removeItem("files_"+w);
+  loadData();
+}
+
+/* ================= MODE ================= */
+function toggle(){
+  document.body.classList.toggle("dark");
+}
+
 </script>
 
 </body>
